@@ -1,0 +1,48 @@
+body {
+    display: flex;
+}
+
+div.conversations {
+    width: 300px;
+    border-right: 1px solid gray;
+    margin-right: 1vh;
+    height: calc(100vh - 16px);
+}
+
+div.conversation {
+    display: none;
+    border-bottom: 1px solid gray;
+    background-color: white;
+    font-weight: 800;
+}
+
+div.conversation:hover {
+    filter: invert(100%)
+}
+
+div.conversation > .row {
+    display: flex;
+    flex-direction: row;
+}
+
+div.chat-area {
+    width: 100%;
+}
+
+.text-input {
+    width: 100vh - 300px;
+    display: flex;
+
+}
+
+.text-input > #message-input {
+    width: 100%;
+}
+
+.text-input > input {
+    margin-right: 1vh;
+}
+
+.messages > p:nth-child(odd) {
+    background-color: rgb(245, 245, 245);
+}
