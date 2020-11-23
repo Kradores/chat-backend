@@ -18,7 +18,13 @@ conversations.forEach(conversation => {
     conversation.addEventListener("click", () => {
         activeChat.id = chatId.value = conversation.querySelector(".chat-id").innerText
         activeChat.sender_id = id.value
-        activeChat.reciever_id = 
+
+        conversation.querySelectorAll(".user-id").forEach(userElem => {
+            if(userElem.innerText != id.value) {
+                activeChat.reciever_id = userElem.innerText
+            }
+        })
+        
         messages.innerHTML = ""
         socket.send(JSON.stringify({
             type: "EXIT_CHAT",
@@ -29,16 +35,16 @@ conversations.forEach(conversation => {
                 type: "ENTER_CHAT",
                 data: {
                     id: id.value, 
-                    chatId: chatId.value, 
+                    chat_id: chatId.value, 
                 }
             }))
-        }, 500)
+        }, 500);
+        
         
     })
 
     conversation.querySelectorAll(".user-id").forEach(userElem => {
         if(userElem.innerText == id.value) {
-            console.debug("show")
             conversation.style.display = "block"
         }
     })
@@ -48,7 +54,9 @@ function sendMessage() {
     socket.send(JSON.stringify({
         type: "MESSAGE",
         data: {
-            id: id.value, 
+            chat_id: activeChat.id,
+            sender_id: activeChat.sender_id, 
+            reciever_id: activeChat.reciever_id,
             text: textInput.value,
         }
     }))
@@ -62,14 +70,22 @@ function sendMessage() {
 
 socket.onmessage = ({data}) => {
     const recieved = JSON.parse(data)
-    const newMessage = document.createElement("P")
-    newMessage.innerText = recieved.data.id + ": " + recieved.data.text
-    messages.appendChild(newMessage)
+    if(recieved.data.chat_id === activeChat.id) {
+        const newMessage = document.createElement("P")
+        newMessage.innerText = recieved.data.sender_id + ": " + recieved.data.text
+        messages.appendChild(newMessage)
+    } else {
+        conversations.forEach(conversation => {
+            if(conversation.querySelector(".chat-id").innerText == recieved.data.chat_id) {
+                conversation.querySelector(".unread").innerText = Number(conversation.querySelector(".unread").innerText) + 1
+            }
+        })
+    }
 }
 
 socket.onopen = (data) => {
     socket.send(JSON.stringify({
-        type: "ENTER_NOTIFICATIONS",
+        type: "INIT_CLIENT",
         data: {
             id: id.value, 
         }
